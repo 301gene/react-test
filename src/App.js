@@ -5,27 +5,38 @@ import Person from './Person/Person';
 class App extends Component {
   state = {
     persons: [
-      { name: 'Max', age: 28 },
-      { name: 'Manu', age: 29 },
-      { name: 'Stephanie', age: 26 }
+      { id: 'asd1', name: 'Max', age: 28 },
+      { id: 'asdf', name: 'Manu', age: 29 },
+      { id: 'kh45', name: 'Stephanie', age: 26 }
     ],
     otherstate: 'some other value',
     showPersons: false
   }
 
-  nameChangedHandler = (event) => { // the event object will be passed to the method by React automatically as if it were normal Javascript, where you all get access to the event object.
-    this.setState({
-      persons: [
-        { name: 'Max', age: 28 },
-        { name: event.target.value, age: 29 },
-        { name: 'Stephanie', age: 26 }
-      ]
-    })
+  nameChangedHandler = (event, id) => { // the event object will be passed to the method by React automatically as if it were normal Javascript, where you all get access to the event object.
+    const personIndex = this.state.persons.findIndex(p => {
+      return p.id === id;
+    });
+
+    const person = {
+      ...this.state.persons[personIndex]
+    };
+
+    // more old fashioned approach would be:
+    // const person = Object.assign({}, this.state.persons[personIndex]);
+
+    person.name = event.target.value;
+
+    const persons = [...this.state.persons];
+    persons[personIndex] = person;
+
+    this.setState( {persons: persons} )
   }
 
   deletePersonHandler = (personIndex) => {
-    const persons = this.state.persons; // holding a pointer 
-    persons.splice(personIndex, 1);     // only changing the element it was pointing to
+    // const persons = this.state.persons.slice(); // one way to do it. slice() without arguments copies the full array and returns a new one
+    const persons = [...this.state.persons]; // the spread (...) operator spreads out the elements in an array into a list of elements and saves it in the new array
+    persons.splice(personIndex, 1);
     this.setState({persons: persons});
   }
 
@@ -43,24 +54,24 @@ class App extends Component {
       border: '1px solid blue',
       padding: '8px',
       cursor: 'pointer'
-    };
+    };// holding a pointer 
 
     let persons = null;
 
     if (this.state.showPersons) {
       persons = (
         <div>
-          {
-            /* map (below) - converts an array into something else
+          {/* map (below) - converts an array into something else
                executed on every element of the array
-            */
-          }
+            */ }
 
           {this.state.persons.map((person, index) => {
             return <Person
               click={() => this.deletePersonHandler(index)}
-              name={person.name} 
-              age={person.age} />
+              name={person.name}
+              age={person.age}
+              key={person.id} 
+              changed={(event) => this.nameChangedHandler(event, person.id)} />
           })}
         </div>
       );
